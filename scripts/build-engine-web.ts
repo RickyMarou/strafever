@@ -132,6 +132,9 @@ async function buildEngineWeb(): Promise<void> {
   }
 
   if (!(await fileExists(engineSourceDir))) {
+    if (mode === 'real') {
+      throw new Error('missing engine/ioq3 source directory');
+    }
     await writeStub('missing engine/ioq3 source directory', mode);
     return;
   }
@@ -139,6 +142,9 @@ async function buildEngineWeb(): Promise<void> {
   const hasEmscripten = await commandExists('emcmake');
   const hasCmake = await commandExists('cmake');
   if (!hasEmscripten || !hasCmake) {
+    if (mode === 'real') {
+      throw new Error('missing build tools (expected: emcmake and cmake)');
+    }
     await writeStub('missing build tools (expected: emcmake and cmake)', mode);
     return;
   }
