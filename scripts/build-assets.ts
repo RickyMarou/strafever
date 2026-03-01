@@ -117,6 +117,15 @@ textures/mvp/trim_plain
 `;
 }
 
+function buildDefaultConfig(): string {
+  return `seta com_introplayed "1"
+seta sv_pure "0"
+seta s_initsound "0"
+seta cg_draw2D "1"
+seta bot_enable "0"
+`;
+}
+
 async function writeSolidTga(filePath: string, width: number, height: number, rgb: RGB): Promise<void> {
   const header = Buffer.alloc(18);
   header[2] = 2;
@@ -153,12 +162,17 @@ async function run(command: string, args: string[], cwd: string): Promise<void> 
   });
 }
 
-async function existingAssetDirs(): Promise<string[]> {
-  const candidates = ['scripts', 'textures', 'maps', 'mapsrc'];
+async function existingAssetEntries(): Promise<string[]> {
+  const dirCandidates = ['scripts', 'textures', 'maps', 'mapsrc'];
+  const fileCandidates = ['default.cfg'];
   const entries = await readdir(assetSourceDir, { withFileTypes: true });
-  const names = new Set(entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name));
+  const dirNames = new Set(entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name));
+  const fileNames = new Set(entries.filter((entry) => entry.isFile()).map((entry) => entry.name));
 
-  return candidates.filter((candidate) => names.has(candidate));
+  return [
+    ...dirCandidates.filter((candidate) => dirNames.has(candidate)),
+    ...fileCandidates.filter((candidate) => fileNames.has(candidate))
+  ];
 }
 
 async function packagePk3(): Promise<string> {
@@ -167,12 +181,12 @@ async function packagePk3(): Promise<string> {
 
   await rm(pk3Path, { force: true });
 
-  const dirs = await existingAssetDirs();
-  if (dirs.length === 0) {
+  const entries = await existingAssetEntries();
+  if (entries.length === 0) {
     return 'skipped (no source directories)';
   }
 
-  await run('zip', ['-q', '-r', pk3Path, ...dirs], assetSourceDir);
+  await run('zip', ['-q', '-r', pk3Path, ...entries], assetSourceDir);
   return path.relative(projectRoot, pk3Path);
 }
 
@@ -182,6 +196,7 @@ async function buildAssets(): Promise<void> {
   await mkdir(mapSourceDir, { recursive: true });
 
   await writeFile(path.join(scriptsDir, 'mvp.shader'), buildShaderSource(), 'utf8');
+  await writeFile(path.join(assetSourceDir, 'default.cfg'), buildDefaultConfig(), 'utf8');
   await writeFile(path.join(mapSourceDir, 'mvp_box.map'), buildBoxMapSource(), 'utf8');
 
   await writeSolidTga(path.join(texturesDir, 'wall_plain.tga'), 64, 64, { r: 70, g: 104, b: 150 });
@@ -198,7 +213,7 @@ async function buildAssets(): Promise<void> {
   const note = hasCompiledMap
     ? 'Compiled map detected. mvp_box.bsp is included in the PK3.'
     : 'Map source is generated. Run `pnpm run build:map` to compile mapsrc/mvp_box.map into maps/mvp_box.bsp.';
-  const generated = ['scripts/mvp.shader', 'textures/mvp/*.tga', 'mapsrc/mvp_box.map'];
+  const generated = ['default.cfg', 'scripts/mvp.shader', 'textures/mvp/*.tga', 'mapsrc/mvp_box.map'];
   if (hasCompiledMap) {
     generated.push('maps/mvp_box.bsp');
   }
