@@ -37,26 +37,41 @@ jobs:
 
           sudo apt-get update
           sudo apt-get install -y p7zip-full
+          q3map2_path=""
 
-          release_json=$(curl -fsSL https://api.github.com/repos/Garux/netradiant-custom/releases/latest)
-          asset_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | test("linux-x86_64\\.7z$")) | .browser_download_url')
-
-          if [ -z "$asset_url" ] || [ "$asset_url" = "null" ]; then
-            echo "Failed to resolve linux-x86_64 netradiant-custom asset URL"
-            exit 1
+          if sudo apt-get install -y q3map2; then
+            q3map2_path=$(command -v q3map2 || true)
           fi
 
-          curl -fsSL "$asset_url" -o /tmp/netradiant-custom.7z
-          mkdir -p /tmp/netradiant-custom
-          7z x /tmp/netradiant-custom.7z -o/tmp/netradiant-custom >/dev/null
+          if [ -z "$q3map2_path" ] && sudo apt-get install -y netradiant; then
+            q3map2_path=$(command -v q3map2 || true)
+          fi
 
-          q3map2_path=$(find /tmp/netradiant-custom -type f -name 'q3map2*' | head -n 1)
           if [ -z "$q3map2_path" ]; then
-            echo "q3map2 binary not found after extraction"
+            release_json=$(curl -fsSL https://api.github.com/repos/Garux/netradiant-custom/releases/latest)
+            asset_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | test("linux-x86_64\\.7z$")) | .browser_download_url')
+
+            if [ -z "$asset_url" ] || [ "$asset_url" = "null" ]; then
+              echo "Failed to resolve linux-x86_64 netradiant-custom asset URL"
+              exit 1
+            fi
+
+            curl -fsSL "$asset_url" -o /tmp/netradiant-custom.7z
+            mkdir -p /tmp/netradiant-custom
+            7z x /tmp/netradiant-custom.7z -o/tmp/netradiant-custom >/dev/null
+
+            q3map2_path=$(find /tmp/netradiant-custom -name 'q3map2*' | head -n 1 || true)
+            if [ -n "$q3map2_path" ]; then
+              chmod +x "$q3map2_path"
+            fi
+          fi
+
+          if [ -z "$q3map2_path" ]; then
+            echo "q3map2 binary not found. Debug file listing:"
+            find /tmp/netradiant-custom -maxdepth 4 -type f | head -n 200 || true
             exit 1
           fi
 
-          chmod +x "$q3map2_path"
           echo "STRAFEVER_Q3MAP2=$q3map2_path" >> "$GITHUB_ENV"
 
       - name: Generate map source and assets
