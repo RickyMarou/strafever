@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 
 const projectRoot = process.cwd();
+const assetsRootDir = path.join(projectRoot, 'assets');
 const baseAssetDir = path.join(projectRoot, 'assets', 'mvp_base');
 const mapSourcePath = path.join(baseAssetDir, 'mapsrc', 'mvp_box.map');
 const mapsOutDir = path.join(baseAssetDir, 'maps');
@@ -28,7 +29,7 @@ async function commandExists(command: string): Promise<boolean> {
 async function run(command: string, args: string[]): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const child = spawn(command, args, {
-      cwd: baseAssetDir,
+      cwd: assetsRootDir,
       stdio: 'inherit'
     });
 
@@ -59,12 +60,13 @@ async function main(): Promise<void> {
 
   const mapRelativePath = `mapsrc/${mapName}.map`;
   const bspRelativePath = `mapsrc/${mapName}.bsp`;
+  const commonArgs = ['-game', 'quake3', '-fs_basepath', assetsRootDir, '-fs_game', 'mvp_base'];
 
-  await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-meta', mapRelativePath]);
+  await run(q3map2Binary, [...commonArgs, '-meta', mapRelativePath]);
 
   if (process.env.STRAFEVER_MAP_FULL_COMPILE === '1') {
-    await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-vis', '-saveprt', bspRelativePath]);
-    await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-light', '-fast', '-filter', bspRelativePath]);
+    await run(q3map2Binary, [...commonArgs, '-vis', '-saveprt', bspRelativePath]);
+    await run(q3map2Binary, [...commonArgs, '-light', '-fast', '-filter', bspRelativePath]);
   }
 
   const generatedBspPath = path.join(baseAssetDir, 'mapsrc', `${mapName}.bsp`);
