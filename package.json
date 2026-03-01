@@ -9,6 +9,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
+    "vendor:engine": "tsx scripts/vendor-engine.ts",
     "build:engine:web": "tsx scripts/build-engine-web.ts",
     "build:assets": "tsx scripts/build-assets.ts",
     "build:web-shell": "tsx scripts/build-web-shell.ts",
