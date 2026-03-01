@@ -33,6 +33,7 @@ Ship a playable browser MVP for **strafever** (ioq3 + WASM) with custom assets a
    - `pnpm serve:local`
 4. Prefer readable, testable code with simple control flow and early exits.
 5. GitHub operations must use GitHub CLI (`gh`) rather than browser/manual flow.
+6. Use CI map compilation workflow (`Build Map Artifact`) when avoiding local q3map2 installs.
 
 ## Commit Discipline
 1. Commit every time an atomic unit of work is complete.

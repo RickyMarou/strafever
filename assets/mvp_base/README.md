@@ -17,3 +17,11 @@ pnpm run build:map
 
 This uses `q3map2` from `PATH` by default.
 Override binary path with `STRAFEVER_Q3MAP2=/absolute/path/to/q3map2`.
+
+## CI Option (No Local q3map2)
+
+Run the `Build Map Artifact` GitHub Action. It compiles `mvp_box.map` in CI and uploads:
+
+- `assets/mvp_base/maps/mvp_box.bsp`
+- `dist/assets/baseq3/mvp_base-dev.pk3`
+- `dist/assets/manifest.json`
