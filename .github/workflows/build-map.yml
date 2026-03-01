@@ -60,6 +60,12 @@ jobs:
             mkdir -p /tmp/netradiant-custom
             7z x /tmp/netradiant-custom.7z -o/tmp/netradiant-custom >/dev/null
 
+            appimage_path=$(find /tmp/netradiant-custom -type f -name '*.AppImage' | head -n 1 || true)
+            if [ -n "$appimage_path" ]; then
+              chmod +x "$appimage_path"
+              (cd /tmp/netradiant-custom && "$appimage_path" --appimage-extract >/dev/null)
+            fi
+
             q3map2_path=$(find /tmp/netradiant-custom -name 'q3map2*' | head -n 1 || true)
             if [ -n "$q3map2_path" ]; then
               chmod +x "$q3map2_path"
