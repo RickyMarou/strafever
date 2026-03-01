@@ -1,5 +1,6 @@
-import { cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { constants as fsConstants } from 'node:fs';
 import { spawn } from 'node:child_process';
 
 type RGB = {
@@ -13,8 +14,18 @@ const assetSourceDir = path.join(projectRoot, 'assets', 'mvp_base');
 const scriptsDir = path.join(assetSourceDir, 'scripts');
 const texturesDir = path.join(assetSourceDir, 'textures', 'mvp');
 const mapSourceDir = path.join(assetSourceDir, 'mapsrc');
+const mapsDir = path.join(assetSourceDir, 'maps');
 const distAssetsDir = path.join(projectRoot, 'dist', 'assets');
 const distBaseq3Dir = path.join(distAssetsDir, 'baseq3');
+
+async function fileExists(targetPath: string): Promise<boolean> {
+  try {
+    await access(targetPath, fsConstants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function plane(a: [number, number, number], b: [number, number, number], c: [number, number, number], texture: string): string {
   return `( ${a[0]} ${a[1]} ${a[2]} ) ( ${b[0]} ${b[1]} ${b[2]} ) ( ${c[0]} ${c[1]} ${c[2]} ) ${texture} 0 0 0 1 1 0 0 0`;
@@ -182,13 +193,22 @@ async function buildAssets(): Promise<void> {
   await cp(assetSourceDir, path.join(distAssetsDir, 'mvp_base_source'), { recursive: true });
 
   const pk3Result = await packagePk3();
+  const compiledMapPath = path.join(mapsDir, 'mvp_box.bsp');
+  const hasCompiledMap = await fileExists(compiledMapPath);
+  const note = hasCompiledMap
+    ? 'Compiled map detected. mvp_box.bsp is included in the PK3.'
+    : 'Map source is generated. Run `pnpm run build:map` to compile mapsrc/mvp_box.map into maps/mvp_box.bsp.';
+  const generated = ['scripts/mvp.shader', 'textures/mvp/*.tga', 'mapsrc/mvp_box.map'];
+  if (hasCompiledMap) {
+    generated.push('maps/mvp_box.bsp');
+  }
 
   const manifest = {
     pack: 'mvp_base',
     source: 'assets/mvp_base',
-    generated: ['scripts/mvp.shader', 'textures/mvp/*.tga', 'mapsrc/mvp_box.map'],
+    generated,
     pk3: pk3Result,
-    note: 'Map source is generated. Compile mapsrc/mvp_box.map into maps/mvp_box.bsp for in-engine play.'
+    note
   };
 
   await writeFile(path.join(distAssetsDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');

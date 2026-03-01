@@ -26,6 +26,7 @@ Ship a playable browser MVP for **strafever** (ioq3 + WASM) with custom assets a
 2. `dist/` is local/CI output only.
 3. Use deterministic scripts:
    - `pnpm build:engine:web`
+   - `pnpm build:map`
    - `pnpm build:assets`
    - `pnpm build:web-shell`
    - `pnpm build:all`

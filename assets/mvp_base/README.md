@@ -9,4 +9,11 @@ Generated files:
 - `mapsrc/mvp_box.map`
 
 `mapsrc/mvp_box.map` is source only.
-To play this map in ioq3, compile it to `maps/mvp_box.bsp` with `q3map2`.
+Compile it with:
+
+```bash
+pnpm run build:map
+```
+
+This uses `q3map2` from `PATH` by default.
+Override binary path with `STRAFEVER_Q3MAP2=/absolute/path/to/q3map2`.
