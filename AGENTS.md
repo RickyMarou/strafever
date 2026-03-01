@@ -33,6 +33,12 @@ Ship a playable browser MVP for **strafever** (ioq3 + WASM) with custom assets a
 4. Prefer readable, testable code with simple control flow and early exits.
 5. GitHub operations must use GitHub CLI (`gh`) rather than browser/manual flow.
 
+## Commit Discipline
+1. Commit every time an atomic unit of work is complete.
+2. Keep commits intentionally small and focused.
+3. Write clear, descriptive commit messages that explain the change.
+4. Avoid mixing unrelated changes in the same commit.
+
 ## Repository
 - GitHub remote: `https://github.com/RickyMarou/strafever`
 
