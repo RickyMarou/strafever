@@ -1,0 +1,25 @@
+{
+  "name": "strafever",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser movement game MVP using ioq3 + WASM",
+  "packageManager": "pnpm@10.6.5",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:engine:web": "tsx scripts/build-engine-web.ts",
+    "build:assets": "tsx scripts/build-assets.ts",
+    "build:web-shell": "tsx scripts/build-web-shell.ts",
+    "build:all": "pnpm run clean && pnpm run build:engine:web && pnpm run build:assets && pnpm run build:web-shell",
+    "serve:local": "http-server dist -p 4173 -c-1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "http-server": "^14.1.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
