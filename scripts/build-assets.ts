@@ -28,7 +28,7 @@ async function fileExists(targetPath: string): Promise<boolean> {
 }
 
 function plane(a: [number, number, number], b: [number, number, number], c: [number, number, number], texture: string): string {
-  return `( ${a[0]} ${a[1]} ${a[2]} ) ( ${b[0]} ${b[1]} ${b[2]} ) ( ${c[0]} ${c[1]} ${c[2]} ) ${texture} 0 0 0 1 1 0 0 0`;
+  return `( ${a[0]} ${a[1]} ${a[2]} ) ( ${b[0]} ${b[1]} ${b[2]} ) ( ${c[0]} ${c[1]} ${c[2]} ) ${texture} 0 0 0 1 1`;
 }
 
 function brushFromBounds(
@@ -40,12 +40,12 @@ function brushFromBounds(
   const [x2, y2, z2] = maxs;
 
   const faces = [
-    plane([x1, y1, z1], [x1, y2, z1], [x2, y2, z1], texture),
-    plane([x2, y2, z2], [x1, y2, z2], [x1, y1, z2], texture),
-    plane([x1, y1, z1], [x1, y1, z2], [x1, y2, z2], texture),
-    plane([x2, y2, z1], [x2, y2, z2], [x2, y1, z2], texture),
-    plane([x1, y1, z1], [x2, y1, z1], [x2, y1, z2], texture),
-    plane([x2, y2, z1], [x1, y2, z1], [x1, y2, z2], texture)
+    plane([x1, y2, z2], [x1, y1, z2], [x1, y1, z1], texture),
+    plane([x1, y1, z2], [x2, y1, z2], [x2, y1, z1], texture),
+    plane([x2, y1, z1], [x2, y2, z1], [x1, y2, z1], texture),
+    plane([x1, y2, z2], [x2, y2, z2], [x2, y1, z2], texture),
+    plane([x2, y2, z1], [x2, y2, z2], [x1, y2, z2], texture),
+    plane([x2, y1, z2], [x2, y2, z2], [x2, y2, z1], texture)
   ];
 
   return `{
