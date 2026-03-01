@@ -1,4 +1,4 @@
-import { access, mkdir } from 'node:fs/promises';
+import { access, cp, mkdir } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -58,10 +58,22 @@ async function main(): Promise<void> {
   await mkdir(mapsOutDir, { recursive: true });
 
   const mapRelativePath = `mapsrc/${mapName}.map`;
+  const bspRelativePath = `mapsrc/${mapName}.bsp`;
 
   await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-meta', mapRelativePath]);
-  await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-vis', '-saveprt', mapRelativePath]);
-  await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-light', '-fast', '-filter', mapRelativePath]);
+
+  if (process.env.STRAFEVER_MAP_FULL_COMPILE === '1') {
+    await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-vis', '-saveprt', bspRelativePath]);
+    await run(q3map2Binary, ['-game', 'quake3', '-fs_basepath', baseAssetDir, '-light', '-fast', '-filter', bspRelativePath]);
+  }
+
+  const generatedBspPath = path.join(baseAssetDir, 'mapsrc', `${mapName}.bsp`);
+  if (!(await fileExists(generatedBspPath))) {
+    throw new Error(`expected compiled BSP at ${generatedBspPath}`);
+  }
+
+  const finalBspPath = path.join(mapsOutDir, `${mapName}.bsp`);
+  await cp(generatedBspPath, finalBspPath);
 
   console.log(`[build:map] compiled ${mapName}.map into assets/mvp_base/maps/${mapName}.bsp`);
 }

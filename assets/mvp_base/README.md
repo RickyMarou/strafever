@@ -17,6 +17,7 @@ pnpm run build:map
 
 This uses `q3map2` from `PATH` by default.
 Override binary path with `STRAFEVER_Q3MAP2=/absolute/path/to/q3map2`.
+Use `STRAFEVER_MAP_FULL_COMPILE=1` to enable additional `-vis` and `-light` passes.
 
 ## CI Option (No Local q3map2)
 
