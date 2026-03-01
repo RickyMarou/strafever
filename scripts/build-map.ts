@@ -58,8 +58,8 @@ async function main(): Promise<void> {
 
   await mkdir(mapsOutDir, { recursive: true });
 
-  const mapRelativePath = `mapsrc/${mapName}.map`;
-  const bspRelativePath = `mapsrc/${mapName}.bsp`;
+  const mapRelativePath = `mvp_base/mapsrc/${mapName}.map`;
+  const bspRelativePath = `mvp_base/mapsrc/${mapName}.bsp`;
   const commonArgs = ['-game', 'quake3', '-fs_basepath', assetsRootDir, '-fs_game', 'mvp_base'];
 
   await run(q3map2Binary, [...commonArgs, '-meta', mapRelativePath]);
