@@ -54,12 +54,12 @@ ${faces.join('\n')}
 }
 
 function buildBoxMapSource(): string {
-  const floor = brushFromBounds([-1024, -1024, -32], [1024, 1024, 0], 'textures/mvp/floor_plain');
-  const ceiling = brushFromBounds([-1024, -1024, 256], [1024, 1024, 288], 'textures/mvp/trim_plain');
-  const westWall = brushFromBounds([-1024, -1024, 0], [-992, 1024, 256], 'textures/mvp/wall_plain');
-  const eastWall = brushFromBounds([992, -1024, 0], [1024, 1024, 256], 'textures/mvp/wall_plain');
-  const southWall = brushFromBounds([-1024, -1024, 0], [1024, -992, 256], 'textures/mvp/wall_plain');
-  const northWall = brushFromBounds([-1024, 992, 0], [1024, 1024, 256], 'textures/mvp/wall_plain');
+  const floor = brushFromBounds([-1024, -1024, -32], [1024, 1024, 0], 'mvp/floor_plain');
+  const ceiling = brushFromBounds([-1024, -1024, 256], [1024, 1024, 288], 'mvp/trim_plain');
+  const westWall = brushFromBounds([-1024, -1024, 0], [-992, 1024, 256], 'mvp/wall_plain');
+  const eastWall = brushFromBounds([992, -1024, 0], [1024, 1024, 256], 'mvp/wall_plain');
+  const southWall = brushFromBounds([-1024, -1024, 0], [1024, -992, 256], 'mvp/wall_plain');
+  const northWall = brushFromBounds([-1024, 992, 0], [1024, 1024, 256], 'mvp/wall_plain');
 
   return `// entity 0
 {
