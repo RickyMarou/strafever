@@ -1,0 +1,65 @@
+// entity 0
+{
+"classname" "worldspawn"
+"message" "strafever_mvp_box"
+{
+( -1024 -1024 -32 ) ( -1024 1024 -32 ) ( 1024 1024 -32 ) textures/mvp/floor_plain 0 0 0 1 1 0 0 0
+( 1024 1024 0 ) ( -1024 1024 0 ) ( -1024 -1024 0 ) textures/mvp/floor_plain 0 0 0 1 1 0 0 0
+( -1024 -1024 -32 ) ( 1024 -1024 -32 ) ( 1024 -1024 0 ) textures/mvp/floor_plain 0 0 0 1 1 0 0 0
+( 1024 1024 0 ) ( 1024 1024 -32 ) ( -1024 1024 -32 ) textures/mvp/floor_plain 0 0 0 1 1 0 0 0
+( -1024 1024 -32 ) ( -1024 -1024 -32 ) ( -1024 -1024 0 ) textures/mvp/floor_plain 0 0 0 1 1 0 0 0
+( 1024 -1024 0 ) ( 1024 1024 0 ) ( 1024 1024 -32 ) textures/mvp/floor_plain 0 0 0 1 1 0 0 0
+}
+{
+( -1024 -1024 256 ) ( -1024 1024 256 ) ( 1024 1024 256 ) textures/mvp/trim_plain 0 0 0 1 1 0 0 0
+( 1024 1024 288 ) ( -1024 1024 288 ) ( -1024 -1024 288 ) textures/mvp/trim_plain 0 0 0 1 1 0 0 0
+( -1024 -1024 256 ) ( 1024 -1024 256 ) ( 1024 -1024 288 ) textures/mvp/trim_plain 0 0 0 1 1 0 0 0
+( 1024 1024 288 ) ( 1024 1024 256 ) ( -1024 1024 256 ) textures/mvp/trim_plain 0 0 0 1 1 0 0 0
+( -1024 1024 256 ) ( -1024 -1024 256 ) ( -1024 -1024 288 ) textures/mvp/trim_plain 0 0 0 1 1 0 0 0
+( 1024 -1024 288 ) ( 1024 1024 288 ) ( 1024 1024 256 ) textures/mvp/trim_plain 0 0 0 1 1 0 0 0
+}
+{
+( -1024 -1024 0 ) ( -1024 1024 0 ) ( -992 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -992 1024 256 ) ( -1024 1024 256 ) ( -1024 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -1024 -1024 0 ) ( -992 -1024 0 ) ( -992 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -992 1024 256 ) ( -992 1024 0 ) ( -1024 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -1024 1024 0 ) ( -1024 -1024 0 ) ( -1024 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -992 -1024 256 ) ( -992 1024 256 ) ( -992 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+}
+{
+( 992 -1024 0 ) ( 992 1024 0 ) ( 1024 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 1024 256 ) ( 992 1024 256 ) ( 992 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 992 -1024 0 ) ( 1024 -1024 0 ) ( 1024 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 1024 256 ) ( 1024 1024 0 ) ( 992 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 992 1024 0 ) ( 992 -1024 0 ) ( 992 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 -1024 256 ) ( 1024 1024 256 ) ( 1024 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+}
+{
+( -1024 -1024 0 ) ( -1024 -992 0 ) ( 1024 -992 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 -992 256 ) ( -1024 -992 256 ) ( -1024 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -1024 -1024 0 ) ( 1024 -1024 0 ) ( 1024 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 -992 256 ) ( 1024 -992 0 ) ( -1024 -992 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -1024 -992 0 ) ( -1024 -1024 0 ) ( -1024 -1024 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 -1024 256 ) ( 1024 -992 256 ) ( 1024 -992 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+}
+{
+( -1024 992 0 ) ( -1024 1024 0 ) ( 1024 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 1024 256 ) ( -1024 1024 256 ) ( -1024 992 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -1024 992 0 ) ( 1024 992 0 ) ( 1024 992 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 1024 256 ) ( 1024 1024 0 ) ( -1024 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( -1024 1024 0 ) ( -1024 992 0 ) ( -1024 992 256 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+( 1024 992 256 ) ( 1024 1024 256 ) ( 1024 1024 0 ) textures/mvp/wall_plain 0 0 0 1 1 0 0 0
+}
+}
+// entity 1
+{
+"classname" "info_player_start"
+"origin" "0 0 32"
+"angle" "90"
+}
+// entity 2
+{
+"classname" "light"
+"origin" "0 0 192"
+"light" "500"
+}
