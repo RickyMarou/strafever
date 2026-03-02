@@ -23,6 +23,11 @@ jobs:
           node-version: 20
           cache: pnpm
 
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
