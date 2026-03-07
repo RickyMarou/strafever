@@ -43,6 +43,12 @@ jobs:
       - name: Build
         run: pnpm run build:all
 
+      - name: Verify playable map in deploy artifact
+        run: |
+          set -euo pipefail
+          test -f dist/assets/baseq3/mvp_base-dev.pk3
+          unzip -l dist/assets/baseq3/mvp_base-dev.pk3 | grep -q "maps/mvp_box.bsp"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
