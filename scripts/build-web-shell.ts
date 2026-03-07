@@ -1,4 +1,4 @@
-import { access, copyFile, mkdir, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readdir, writeFile } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
 import path from 'node:path';
 
@@ -29,19 +29,35 @@ async function fileExists(targetPath: string): Promise<boolean> {
 }
 
 async function stitchRuntime(): Promise<void> {
-  const pk3Name = 'mvp_base-dev.pk3';
-  const pk3SourcePath = path.join(distAssetsBaseq3Dir, pk3Name);
-  const pk3DestPath = path.join(distEngineDir, standaloneGameDir, pk3Name);
+  const pk3Names: string[] = [];
+  if (await fileExists(distAssetsBaseq3Dir)) {
+    const entries = await readdir(distAssetsBaseq3Dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile() || !entry.name.endsWith('.pk3')) {
+        continue;
+      }
+      pk3Names.push(entry.name);
+    }
+  }
 
-  if (await fileExists(pk3SourcePath)) {
+  pk3Names.sort();
+
+  for (const pk3Name of pk3Names) {
+    const pk3SourcePath = path.join(distAssetsBaseq3Dir, pk3Name);
+    const pk3DestPath = path.join(distEngineDir, standaloneGameDir, pk3Name);
     await mkdir(path.dirname(pk3DestPath), { recursive: true });
     await copyFile(pk3SourcePath, pk3DestPath);
   }
 
+  const pk3Files = pk3Names.map((pk3Name) => ({
+    src: `${standaloneGameDir}/${pk3Name}`,
+    dst: `/${standaloneGameDir}`
+  }));
+
   const clientConfig: ClientConfig = {
     [standaloneGameDir]: {
       files: [
-        { src: `${standaloneGameDir}/${pk3Name}`, dst: `/${standaloneGameDir}` },
+        ...pk3Files,
         { src: 'baseq3/vm/cgame.qvm', dst: `/${standaloneGameDir}/vm` },
         { src: 'baseq3/vm/qagame.qvm', dst: `/${standaloneGameDir}/vm` },
         { src: 'baseq3/vm/ui.qvm', dst: `/${standaloneGameDir}/vm` }

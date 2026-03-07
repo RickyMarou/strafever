@@ -17,6 +17,7 @@ const gfx2dDir = path.join(assetSourceDir, "gfx", "2d");
 const menuArtDir = path.join(assetSourceDir, "menu", "art");
 const mapSourceDir = path.join(assetSourceDir, "mapsrc");
 const mapsDir = path.join(assetSourceDir, "maps");
+const externalPk3SourceDir = path.join(projectRoot, "assets", "external_pk3");
 const distAssetsDir = path.join(projectRoot, "dist", "assets");
 const distBaseq3Dir = path.join(distAssetsDir, "baseq3");
 
@@ -483,6 +484,29 @@ async function packagePk3(): Promise<string> {
   return path.relative(projectRoot, pk3Path);
 }
 
+async function copyExternalPk3s(): Promise<string[]> {
+  await mkdir(distBaseq3Dir, { recursive: true });
+  const copied: string[] = [];
+
+  if (!(await fileExists(externalPk3SourceDir))) {
+    return copied;
+  }
+
+  const entries = await readdir(externalPk3SourceDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith(".pk3")) {
+      continue;
+    }
+
+    const sourcePath = path.join(externalPk3SourceDir, entry.name);
+    const destPath = path.join(distBaseq3Dir, entry.name);
+    await cp(sourcePath, destPath);
+    copied.push(path.relative(projectRoot, destPath));
+  }
+
+  return copied.sort();
+}
+
 async function buildAssets(): Promise<void> {
   await mkdir(scriptsDir, { recursive: true });
   await mkdir(texturesDir, { recursive: true });
@@ -521,6 +545,22 @@ async function buildAssets(): Promise<void> {
     g: 154,
     b: 191,
   });
+
+  const mapCompatTextures: Array<{ file: string; color: RGB }> = [
+    { file: "textures/base_ceiling/metceil1d.tga", color: { r: 193, g: 203, b: 204 } },
+    { file: "textures/base_floor/clang_floor2.tga", color: { r: 96, g: 104, b: 112 } },
+    { file: "textures/base_floor/clang_floor3b.tga", color: { r: 84, g: 92, b: 99 } },
+    { file: "textures/base_light/ceil1_38_10k.tga", color: { r: 245, g: 245, b: 236 } },
+    { file: "textures/base_trim/pewter.tga", color: { r: 138, g: 146, b: 156 } },
+    { file: "textures/base_wall/atech2_c.tga", color: { r: 108, g: 119, b: 132 } },
+    { file: "textures/sfx/fog_timctf1.tga", color: { r: 160, g: 190, b: 220 } },
+  ];
+
+  for (const texture of mapCompatTextures) {
+    const targetPath = path.join(assetSourceDir, texture.file);
+    await mkdir(path.dirname(targetPath), { recursive: true });
+    await writeSolidTga(targetPath, 64, 64, texture.color);
+  }
   for (const crosshairName of [
     "a",
     "b",
@@ -558,6 +598,7 @@ async function buildAssets(): Promise<void> {
   });
 
   const pk3Result = await packagePk3();
+  const externalPk3 = await copyExternalPk3s();
   const compiledMapPath = path.join(mapsDir, "mvp_box.bsp");
   const hasCompiledMap = await fileExists(compiledMapPath);
   const note = hasCompiledMap
@@ -567,6 +608,8 @@ async function buildAssets(): Promise<void> {
     "default.cfg",
     "scripts/mvp.shader",
     "textures/mvp/*.tga",
+    "textures/base_*/** (jump2 placeholders)",
+    "textures/sfx/fog_timctf1.tga",
     "gfx/2d/crosshair[a-j].tga",
     "gfx/2d/net.tga",
     "console.tga",
@@ -583,6 +626,7 @@ async function buildAssets(): Promise<void> {
     source: "assets/mvp_base",
     generated,
     pk3: pk3Result,
+    externalPk3,
     note,
   };
 
