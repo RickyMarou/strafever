@@ -35,6 +35,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          NETRADIANT_CUSTOM_TAG="20260114"
+          NETRADIANT_CUSTOM_ASSET="netradiant-custom-20260114-linux-x86_64.7z"
+
           sudo apt-get update
           sudo apt-get install -y p7zip-full
           q3map2_path=""
@@ -48,14 +51,7 @@ jobs:
           fi
 
           if [ -z "$q3map2_path" ]; then
-            release_json=$(curl -fsSL https://api.github.com/repos/Garux/netradiant-custom/releases/latest)
-            asset_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | test("linux-x86_64\\.7z$")) | .browser_download_url')
-
-            if [ -z "$asset_url" ] || [ "$asset_url" = "null" ]; then
-              echo "Failed to resolve linux-x86_64 netradiant-custom asset URL"
-              exit 1
-            fi
-
+            asset_url="https://github.com/Garux/netradiant-custom/releases/download/${NETRADIANT_CUSTOM_TAG}/${NETRADIANT_CUSTOM_ASSET}"
             curl -fsSL "$asset_url" -o /tmp/netradiant-custom.7z
             mkdir -p /tmp/netradiant-custom
             7z x /tmp/netradiant-custom.7z -o/tmp/netradiant-custom >/dev/null
