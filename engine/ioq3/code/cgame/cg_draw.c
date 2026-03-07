@@ -794,6 +794,32 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+/*
+=================
+CG_DrawSpeed
+=================
+*/
+static float CG_DrawSpeed( float y ) {
+	char		*s;
+	int			w;
+	float		speed;
+	vec3_t		velocity;
+
+	if ( !cg.snap ) {
+		return y;
+	}
+
+	VectorCopy( cg.predictedPlayerState.velocity, velocity );
+	speed = sqrt( velocity[0] * velocity[0] + velocity[1] * velocity[1] );
+
+	s = va( "%i ups", (int)speed );
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+
+	CG_DrawBigString( 635 - w, y + 2, s, 1.0F );
+
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
 
 /*
 =================
@@ -989,6 +1015,9 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	}
 	if (cg_drawFPS.integer && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
 		y = CG_DrawFPS( y );
+	}
+	if (cg_drawSpeed.integer && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
+		y = CG_DrawSpeed( y );
 	}
 	if ( cg_drawTimer.integer ) {
 		y = CG_DrawTimer( y );
@@ -1284,7 +1313,7 @@ static void CG_DrawLowerRight( void ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
 
-	y = CG_DrawScores( y );
+	// Strafever: score/frag HUD is intentionally disabled for movement-only gameplay.
 	CG_DrawPowerups( y );
 }
 #endif // MISSIONPACK
@@ -2653,6 +2682,3 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);
 }
-
-
-

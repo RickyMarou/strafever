@@ -1,7 +1,7 @@
-import { access, cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-import { constants as fsConstants } from 'node:fs';
-import { spawn } from 'node:child_process';
+import { access, cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { constants as fsConstants } from "node:fs";
+import { spawn } from "node:child_process";
 
 type RGB = {
   r: number;
@@ -10,15 +10,15 @@ type RGB = {
 };
 
 const projectRoot = process.cwd();
-const assetSourceDir = path.join(projectRoot, 'assets', 'mvp_base');
-const scriptsDir = path.join(assetSourceDir, 'scripts');
-const texturesDir = path.join(assetSourceDir, 'textures', 'mvp');
-const gfx2dDir = path.join(assetSourceDir, 'gfx', '2d');
-const menuArtDir = path.join(assetSourceDir, 'menu', 'art');
-const mapSourceDir = path.join(assetSourceDir, 'mapsrc');
-const mapsDir = path.join(assetSourceDir, 'maps');
-const distAssetsDir = path.join(projectRoot, 'dist', 'assets');
-const distBaseq3Dir = path.join(distAssetsDir, 'baseq3');
+const assetSourceDir = path.join(projectRoot, "assets", "mvp_base");
+const scriptsDir = path.join(assetSourceDir, "scripts");
+const texturesDir = path.join(assetSourceDir, "textures", "mvp");
+const gfx2dDir = path.join(assetSourceDir, "gfx", "2d");
+const menuArtDir = path.join(assetSourceDir, "menu", "art");
+const mapSourceDir = path.join(assetSourceDir, "mapsrc");
+const mapsDir = path.join(assetSourceDir, "maps");
+const distAssetsDir = path.join(projectRoot, "dist", "assets");
+const distBaseq3Dir = path.join(distAssetsDir, "baseq3");
 
 async function fileExists(targetPath: string): Promise<boolean> {
   try {
@@ -29,14 +29,19 @@ async function fileExists(targetPath: string): Promise<boolean> {
   }
 }
 
-function plane(a: [number, number, number], b: [number, number, number], c: [number, number, number], texture: string): string {
+function plane(
+  a: [number, number, number],
+  b: [number, number, number],
+  c: [number, number, number],
+  texture: string,
+): string {
   return `( ${a[0]} ${a[1]} ${a[2]} ) ( ${b[0]} ${b[1]} ${b[2]} ) ( ${c[0]} ${c[1]} ${c[2]} ) ${texture} 0 0 0 1 1`;
 }
 
 function brushFromBounds(
   mins: [number, number, number],
   maxs: [number, number, number],
-  texture: string
+  texture: string,
 ): string {
   const [x1, y1, z1] = mins;
   const [x2, y2, z2] = maxs;
@@ -47,21 +52,45 @@ function brushFromBounds(
     plane([x2, y1, z1], [x2, y2, z1], [x1, y2, z1], texture),
     plane([x1, y2, z2], [x2, y2, z2], [x2, y1, z2], texture),
     plane([x2, y2, z1], [x2, y2, z2], [x1, y2, z2], texture),
-    plane([x2, y1, z2], [x2, y2, z2], [x2, y2, z1], texture)
+    plane([x2, y1, z2], [x2, y2, z2], [x2, y2, z1], texture),
   ];
 
   return `{
-${faces.join('\n')}
+${faces.join("\n")}
 }`;
 }
 
 function buildBoxMapSource(): string {
-  const floor = brushFromBounds([-1024, -1024, -32], [1024, 1024, 0], 'mvp/floor_plain');
-  const ceiling = brushFromBounds([-1024, -1024, 256], [1024, 1024, 288], 'mvp/trim_plain');
-  const westWall = brushFromBounds([-1024, -1024, 0], [-992, 1024, 256], 'mvp/wall_plain');
-  const eastWall = brushFromBounds([992, -1024, 0], [1024, 1024, 256], 'mvp/wall_plain');
-  const southWall = brushFromBounds([-1024, -1024, 0], [1024, -992, 256], 'mvp/wall_plain');
-  const northWall = brushFromBounds([-1024, 992, 0], [1024, 1024, 256], 'mvp/wall_plain');
+  const floor = brushFromBounds(
+    [-1024, -1024, -32],
+    [1024, 1024, 0],
+    "mvp/floor_plain",
+  );
+  const ceiling = brushFromBounds(
+    [-1024, -1024, 256],
+    [1024, 1024, 288],
+    "mvp/trim_plain",
+  );
+  const westWall = brushFromBounds(
+    [-1024, -1024, 0],
+    [-992, 1024, 256],
+    "mvp/wall_plain",
+  );
+  const eastWall = brushFromBounds(
+    [992, -1024, 0],
+    [1024, 1024, 256],
+    "mvp/wall_plain",
+  );
+  const southWall = brushFromBounds(
+    [-1024, -1024, 0],
+    [1024, -992, 256],
+    "mvp/wall_plain",
+  );
+  const northWall = brushFromBounds(
+    [-1024, 992, 0],
+    [1024, 1024, 256],
+    "mvp/wall_plain",
+  );
 
   return `// entity 0
 {
@@ -130,9 +159,11 @@ function buildDefaultConfig(): string {
 seta sv_pure "0"
 seta s_initsound "0"
 seta cg_draw2D "1"
-seta cg_drawStatus "0"
 seta cg_drawIcons "0"
 seta cg_draw3dIcons "0"
+seta cg_drawFPS "1"
+seta cg_drawSpeed "1"
+seta cg_drawStatus "0"
 seta cg_drawCrosshair "1"
 seta cg_crosshairSize "24"
 seta cg_lagometer "0"
@@ -150,66 +181,71 @@ bind MOUSE2 "+zoom"
 }
 
 const glyph5x7: Record<string, string[]> = {
-  ' ': ['00000', '00000', '00000', '00000', '00000', '00000', '00000'],
-  '.': ['00000', '00000', '00000', '00000', '00000', '01100', '01100'],
-  ',': ['00000', '00000', '00000', '00000', '00110', '00110', '00100'],
-  ':': ['00000', '01100', '01100', '00000', '01100', '01100', '00000'],
-  ';': ['00000', '01100', '01100', '00000', '00110', '00110', '00100'],
-  '!': ['00100', '00100', '00100', '00100', '00100', '00000', '00100'],
-  '?': ['01110', '10001', '00001', '00010', '00100', '00000', '00100'],
-  '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000'],
-  '+': ['00000', '00100', '00100', '11111', '00100', '00100', '00000'],
-  '/': ['00001', '00010', '00100', '01000', '10000', '00000', '00000'],
-  '\\': ['10000', '01000', '00100', '00010', '00001', '00000', '00000'],
-  '=': ['00000', '11111', '00000', '11111', '00000', '00000', '00000'],
-  '_': ['00000', '00000', '00000', '00000', '00000', '00000', '11111'],
-  '(': ['00010', '00100', '01000', '01000', '01000', '00100', '00010'],
-  ')': ['01000', '00100', '00010', '00010', '00010', '00100', '01000'],
-  '[': ['01110', '01000', '01000', '01000', '01000', '01000', '01110'],
-  ']': ['01110', '00010', '00010', '00010', '00010', '00010', '01110'],
-  '<': ['00010', '00100', '01000', '10000', '01000', '00100', '00010'],
-  '>': ['01000', '00100', '00010', '00001', '00010', '00100', '01000'],
-  '"': ['01010', '01010', '00000', '00000', '00000', '00000', '00000'],
-  '\'': ['00100', '00100', '00000', '00000', '00000', '00000', '00000'],
-  '0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
-  '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
-  '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
-  '3': ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
-  '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
-  '5': ['11111', '10000', '10000', '11110', '00001', '00001', '11110'],
-  '6': ['01110', '10000', '10000', '11110', '10001', '10001', '01110'],
-  '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
-  '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
-  '9': ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
-  'A': ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
-  'B': ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
-  'C': ['01110', '10001', '10000', '10000', '10000', '10001', '01110'],
-  'D': ['11110', '10001', '10001', '10001', '10001', '10001', '11110'],
-  'E': ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
-  'F': ['11111', '10000', '10000', '11110', '10000', '10000', '10000'],
-  'G': ['01110', '10001', '10000', '10000', '10011', '10001', '01110'],
-  'H': ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
-  'I': ['01110', '00100', '00100', '00100', '00100', '00100', '01110'],
-  'J': ['00111', '00010', '00010', '00010', '00010', '10010', '01100'],
-  'K': ['10001', '10010', '10100', '11000', '10100', '10010', '10001'],
-  'L': ['10000', '10000', '10000', '10000', '10000', '10000', '11111'],
-  'M': ['10001', '11011', '10101', '10101', '10001', '10001', '10001'],
-  'N': ['10001', '10001', '11001', '10101', '10011', '10001', '10001'],
-  'O': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
-  'P': ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
-  'Q': ['01110', '10001', '10001', '10001', '10101', '10010', '01101'],
-  'R': ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
-  'S': ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
-  'T': ['11111', '00100', '00100', '00100', '00100', '00100', '00100'],
-  'U': ['10001', '10001', '10001', '10001', '10001', '10001', '01110'],
-  'V': ['10001', '10001', '10001', '10001', '10001', '01010', '00100'],
-  'W': ['10001', '10001', '10001', '10101', '10101', '11011', '10001'],
-  'X': ['10001', '10001', '01010', '00100', '01010', '10001', '10001'],
-  'Y': ['10001', '10001', '01010', '00100', '00100', '00100', '00100'],
-  'Z': ['11111', '00001', '00010', '00100', '01000', '10000', '11111']
+  " ": ["00000", "00000", "00000", "00000", "00000", "00000", "00000"],
+  ".": ["00000", "00000", "00000", "00000", "00000", "01100", "01100"],
+  ",": ["00000", "00000", "00000", "00000", "00110", "00110", "00100"],
+  ":": ["00000", "01100", "01100", "00000", "01100", "01100", "00000"],
+  ";": ["00000", "01100", "01100", "00000", "00110", "00110", "00100"],
+  "!": ["00100", "00100", "00100", "00100", "00100", "00000", "00100"],
+  "?": ["01110", "10001", "00001", "00010", "00100", "00000", "00100"],
+  "-": ["00000", "00000", "00000", "11111", "00000", "00000", "00000"],
+  "+": ["00000", "00100", "00100", "11111", "00100", "00100", "00000"],
+  "/": ["00001", "00010", "00100", "01000", "10000", "00000", "00000"],
+  "\\": ["10000", "01000", "00100", "00010", "00001", "00000", "00000"],
+  "=": ["00000", "11111", "00000", "11111", "00000", "00000", "00000"],
+  _: ["00000", "00000", "00000", "00000", "00000", "00000", "11111"],
+  "(": ["00010", "00100", "01000", "01000", "01000", "00100", "00010"],
+  ")": ["01000", "00100", "00010", "00010", "00010", "00100", "01000"],
+  "[": ["01110", "01000", "01000", "01000", "01000", "01000", "01110"],
+  "]": ["01110", "00010", "00010", "00010", "00010", "00010", "01110"],
+  "<": ["00010", "00100", "01000", "10000", "01000", "00100", "00010"],
+  ">": ["01000", "00100", "00010", "00001", "00010", "00100", "01000"],
+  '"': ["01010", "01010", "00000", "00000", "00000", "00000", "00000"],
+  "'": ["00100", "00100", "00000", "00000", "00000", "00000", "00000"],
+  "0": ["01110", "10001", "10011", "10101", "11001", "10001", "01110"],
+  "1": ["00100", "01100", "00100", "00100", "00100", "00100", "01110"],
+  "2": ["01110", "10001", "00001", "00010", "00100", "01000", "11111"],
+  "3": ["11110", "00001", "00001", "01110", "00001", "00001", "11110"],
+  "4": ["00010", "00110", "01010", "10010", "11111", "00010", "00010"],
+  "5": ["11111", "10000", "10000", "11110", "00001", "00001", "11110"],
+  "6": ["01110", "10000", "10000", "11110", "10001", "10001", "01110"],
+  "7": ["11111", "00001", "00010", "00100", "01000", "01000", "01000"],
+  "8": ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
+  "9": ["01110", "10001", "10001", "01111", "00001", "00001", "01110"],
+  A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
+  B: ["11110", "10001", "10001", "11110", "10001", "10001", "11110"],
+  C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
+  D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
+  E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+  F: ["11111", "10000", "10000", "11110", "10000", "10000", "10000"],
+  G: ["01110", "10001", "10000", "10000", "10011", "10001", "01110"],
+  H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
+  I: ["01110", "00100", "00100", "00100", "00100", "00100", "01110"],
+  J: ["00111", "00010", "00010", "00010", "00010", "10010", "01100"],
+  K: ["10001", "10010", "10100", "11000", "10100", "10010", "10001"],
+  L: ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
+  M: ["10001", "11011", "10101", "10101", "10001", "10001", "10001"],
+  N: ["10001", "10001", "11001", "10101", "10011", "10001", "10001"],
+  O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
+  P: ["11110", "10001", "10001", "11110", "10000", "10000", "10000"],
+  Q: ["01110", "10001", "10001", "10001", "10101", "10010", "01101"],
+  R: ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
+  S: ["01111", "10000", "10000", "01110", "00001", "00001", "11110"],
+  T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+  U: ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
+  V: ["10001", "10001", "10001", "10001", "10001", "01010", "00100"],
+  W: ["10001", "10001", "10001", "10101", "10101", "11011", "10001"],
+  X: ["10001", "10001", "01010", "00100", "01010", "10001", "10001"],
+  Y: ["10001", "10001", "01010", "00100", "00100", "00100", "00100"],
+  Z: ["11111", "00001", "00010", "00100", "01000", "10000", "11111"],
 };
 
-async function writeSolidTga(filePath: string, width: number, height: number, rgb: RGB): Promise<void> {
+async function writeSolidTga(
+  filePath: string,
+  width: number,
+  height: number,
+  rgb: RGB,
+): Promise<void> {
   const header = Buffer.alloc(18);
   header[2] = 2;
   header.writeUInt16LE(width, 12);
@@ -230,7 +266,12 @@ async function writeSolidTga(filePath: string, width: number, height: number, rg
   await writeFile(filePath, Buffer.concat([header, pixels]));
 }
 
-async function writeRgbaTga(filePath: string, width: number, height: number, rgba: Uint8Array): Promise<void> {
+async function writeRgbaTga(
+  filePath: string,
+  width: number,
+  height: number,
+  rgba: Uint8Array,
+): Promise<void> {
   const header = Buffer.alloc(18);
   header[2] = 2;
   header.writeUInt16LE(width, 12);
@@ -255,7 +296,10 @@ async function writeRgbaTga(filePath: string, width: number, height: number, rgb
   await writeFile(filePath, Buffer.concat([header, pixels]));
 }
 
-async function writeWhiteDotCrosshair(filePath: string, size: number): Promise<void> {
+async function writeWhiteDotCrosshair(
+  filePath: string,
+  size: number,
+): Promise<void> {
   const rgba = new Uint8Array(size * size * 4);
   const center = (size - 1) / 2;
   const radius = Math.max(1, size * 0.08);
@@ -296,7 +340,11 @@ async function writeBigCharsAtlas(filePath: string): Promise<void> {
   const sampleGrid = 4;
   const sampleCount = sampleGrid * sampleGrid;
 
-  const glyphCoverage = (glyph: string[], localX: number, localY: number): number => {
+  const glyphCoverage = (
+    glyph: string[],
+    localX: number,
+    localY: number,
+  ): number => {
     let hits = 0;
 
     for (let sy = 0; sy < sampleGrid; sy += 1) {
@@ -308,7 +356,7 @@ async function writeBigCharsAtlas(filePath: string): Promise<void> {
         if (gx < 0 || gx >= 5 || gy < 0 || gy >= 7) {
           continue;
         }
-        if (glyph[gy]?.[gx] === '1') {
+        if (glyph[gy]?.[gx] === "1") {
           hits += 1;
         }
       }
@@ -319,7 +367,8 @@ async function writeBigCharsAtlas(filePath: string): Promise<void> {
 
   for (let code = 32; code <= 126; code += 1) {
     const char = String.fromCharCode(code);
-    const glyph = glyph5x7[char] ?? glyph5x7[char.toUpperCase()] ?? glyph5x7['?'];
+    const glyph =
+      glyph5x7[char] ?? glyph5x7[char.toUpperCase()] ?? glyph5x7["?"];
     const cellX = (code & 15) * cell;
     const cellY = (code >> 4) * cell;
 
@@ -343,12 +392,20 @@ async function writeBigCharsAtlas(filePath: string): Promise<void> {
   await writeRgbaTga(filePath, size, size, rgba);
 }
 
-async function writeTransparentTga(filePath: string, width: number, height: number): Promise<void> {
+async function writeTransparentTga(
+  filePath: string,
+  width: number,
+  height: number,
+): Promise<void> {
   const rgba = new Uint8Array(width * height * 4);
   await writeRgbaTga(filePath, width, height, rgba);
 }
 
-async function writeConsoleBackground(filePath: string, width: number, height: number): Promise<void> {
+async function writeConsoleBackground(
+  filePath: string,
+  width: number,
+  height: number,
+): Promise<void> {
   const rgba = new Uint8Array(width * height * 4);
 
   for (let y = 0; y < height; y += 1) {
@@ -368,46 +425,61 @@ async function writeConsoleBackground(filePath: string, width: number, height: n
   await writeRgbaTga(filePath, width, height, rgba);
 }
 
-async function run(command: string, args: string[], cwd: string): Promise<void> {
+async function run(
+  command: string,
+  args: string[],
+  cwd: string,
+): Promise<void> {
   await new Promise<void>((resolve, reject) => {
-    const child = spawn(command, args, { cwd, stdio: 'inherit' });
+    const child = spawn(command, args, { cwd, stdio: "inherit" });
 
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       if (code === 0) {
         resolve();
         return;
       }
 
-      reject(new Error(`Command failed: ${command} ${args.join(' ')}`));
+      reject(new Error(`Command failed: ${command} ${args.join(" ")}`));
     });
   });
 }
 
 async function existingAssetEntries(): Promise<string[]> {
-  const dirCandidates = ['scripts', 'textures', 'gfx', 'menu', 'maps', 'mapsrc'];
-  const fileCandidates = ['default.cfg', 'console.tga'];
+  const dirCandidates = [
+    "scripts",
+    "textures",
+    "gfx",
+    "menu",
+    "maps",
+    "mapsrc",
+  ];
+  const fileCandidates = ["default.cfg", "console.tga"];
   const entries = await readdir(assetSourceDir, { withFileTypes: true });
-  const dirNames = new Set(entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name));
-  const fileNames = new Set(entries.filter((entry) => entry.isFile()).map((entry) => entry.name));
+  const dirNames = new Set(
+    entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name),
+  );
+  const fileNames = new Set(
+    entries.filter((entry) => entry.isFile()).map((entry) => entry.name),
+  );
 
   return [
     ...dirCandidates.filter((candidate) => dirNames.has(candidate)),
-    ...fileCandidates.filter((candidate) => fileNames.has(candidate))
+    ...fileCandidates.filter((candidate) => fileNames.has(candidate)),
   ];
 }
 
 async function packagePk3(): Promise<string> {
   await mkdir(distBaseq3Dir, { recursive: true });
-  const pk3Path = path.join(distBaseq3Dir, 'mvp_base-dev.pk3');
+  const pk3Path = path.join(distBaseq3Dir, "mvp_base-dev.pk3");
 
   await rm(pk3Path, { force: true });
 
   const entries = await existingAssetEntries();
   if (entries.length === 0) {
-    return 'skipped (no source directories)';
+    return "skipped (no source directories)";
   }
 
-  await run('zip', ['-q', '-r', pk3Path, ...entries], assetSourceDir);
+  await run("zip", ["-q", "-r", pk3Path, ...entries], assetSourceDir);
   return path.relative(projectRoot, pk3Path);
 }
 
@@ -418,60 +490,108 @@ async function buildAssets(): Promise<void> {
   await mkdir(menuArtDir, { recursive: true });
   await mkdir(mapSourceDir, { recursive: true });
 
-  await writeFile(path.join(scriptsDir, 'mvp.shader'), buildShaderSource(), 'utf8');
-  await writeFile(path.join(assetSourceDir, 'default.cfg'), buildDefaultConfig(), 'utf8');
-  await writeFile(path.join(mapSourceDir, 'mvp_box.map'), buildBoxMapSource(), 'utf8');
+  await writeFile(
+    path.join(scriptsDir, "mvp.shader"),
+    buildShaderSource(),
+    "utf8",
+  );
+  await writeFile(
+    path.join(assetSourceDir, "default.cfg"),
+    buildDefaultConfig(),
+    "utf8",
+  );
+  await writeFile(
+    path.join(mapSourceDir, "mvp_box.map"),
+    buildBoxMapSource(),
+    "utf8",
+  );
 
-  await writeSolidTga(path.join(texturesDir, 'wall_plain.tga'), 64, 64, { r: 70, g: 104, b: 150 });
-  await writeSolidTga(path.join(texturesDir, 'floor_plain.tga'), 64, 64, { r: 34, g: 52, b: 71 });
-  await writeSolidTga(path.join(texturesDir, 'trim_plain.tga'), 64, 64, { r: 116, g: 154, b: 191 });
-  for (const crosshairName of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']) {
-    await writeWhiteDotCrosshair(path.join(gfx2dDir, `crosshair${crosshairName}.tga`), 32);
+  await writeSolidTga(path.join(texturesDir, "wall_plain.tga"), 64, 64, {
+    r: 70,
+    g: 104,
+    b: 150,
+  });
+  await writeSolidTga(path.join(texturesDir, "floor_plain.tga"), 64, 64, {
+    r: 34,
+    g: 52,
+    b: 71,
+  });
+  await writeSolidTga(path.join(texturesDir, "trim_plain.tga"), 64, 64, {
+    r: 116,
+    g: 154,
+    b: 191,
+  });
+  for (const crosshairName of [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+  ]) {
+    await writeWhiteDotCrosshair(
+      path.join(gfx2dDir, `crosshair${crosshairName}.tga`),
+      32,
+    );
   }
-  await writeTransparentTga(path.join(gfx2dDir, 'net.tga'), 64, 32);
-  await writeConsoleBackground(path.join(assetSourceDir, 'console.tga'), 512, 512);
+  await writeTransparentTga(path.join(gfx2dDir, "net.tga"), 64, 32);
+  await writeConsoleBackground(
+    path.join(assetSourceDir, "console.tga"),
+    512,
+    512,
+  );
 
-  const bigCharsAtlasPath = path.join(gfx2dDir, 'bigchars.tga');
+  const bigCharsAtlasPath = path.join(gfx2dDir, "bigchars.tga");
   await writeBigCharsAtlas(bigCharsAtlasPath);
-  await cp(bigCharsAtlasPath, path.join(menuArtDir, 'font1_prop.tga'));
-  await cp(bigCharsAtlasPath, path.join(menuArtDir, 'font1_prop_glo.tga'));
-  await cp(bigCharsAtlasPath, path.join(menuArtDir, 'font2_prop.tga'));
+  await cp(bigCharsAtlasPath, path.join(menuArtDir, "font1_prop.tga"));
+  await cp(bigCharsAtlasPath, path.join(menuArtDir, "font1_prop_glo.tga"));
+  await cp(bigCharsAtlasPath, path.join(menuArtDir, "font2_prop.tga"));
 
   await rm(distAssetsDir, { recursive: true, force: true });
   await mkdir(distAssetsDir, { recursive: true });
-  await cp(assetSourceDir, path.join(distAssetsDir, 'mvp_base_source'), { recursive: true });
+  await cp(assetSourceDir, path.join(distAssetsDir, "mvp_base_source"), {
+    recursive: true,
+  });
 
   const pk3Result = await packagePk3();
-  const compiledMapPath = path.join(mapsDir, 'mvp_box.bsp');
+  const compiledMapPath = path.join(mapsDir, "mvp_box.bsp");
   const hasCompiledMap = await fileExists(compiledMapPath);
   const note = hasCompiledMap
-    ? 'Compiled map detected. mvp_box.bsp is included in the PK3.'
-    : 'Map source is generated. Run `pnpm run build:map` to compile mapsrc/mvp_box.map into maps/mvp_box.bsp.';
+    ? "Compiled map detected. mvp_box.bsp is included in the PK3."
+    : "Map source is generated. Run `pnpm run build:map` to compile mapsrc/mvp_box.map into maps/mvp_box.bsp.";
   const generated = [
-    'default.cfg',
-    'scripts/mvp.shader',
-    'textures/mvp/*.tga',
-    'gfx/2d/crosshair[a-j].tga',
-    'gfx/2d/net.tga',
-    'console.tga',
-    'gfx/2d/bigchars.tga',
-    'menu/art/font{1_prop,1_prop_glo,2_prop}.tga',
-    'mapsrc/mvp_box.map'
+    "default.cfg",
+    "scripts/mvp.shader",
+    "textures/mvp/*.tga",
+    "gfx/2d/crosshair[a-j].tga",
+    "gfx/2d/net.tga",
+    "console.tga",
+    "gfx/2d/bigchars.tga",
+    "menu/art/font{1_prop,1_prop_glo,2_prop}.tga",
+    "mapsrc/mvp_box.map",
   ];
   if (hasCompiledMap) {
-    generated.push('maps/mvp_box.bsp');
+    generated.push("maps/mvp_box.bsp");
   }
 
   const manifest = {
-    pack: 'mvp_base',
-    source: 'assets/mvp_base',
+    pack: "mvp_base",
+    source: "assets/mvp_base",
     generated,
     pk3: pk3Result,
-    note
+    note,
   };
 
-  await writeFile(path.join(distAssetsDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-  console.log('[build:assets] generated mvp asset source and packaged dev pk3');
+  await writeFile(
+    path.join(distAssetsDir, "manifest.json"),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+    "utf8",
+  );
+  console.log("[build:assets] generated mvp asset source and packaged dev pk3");
 }
 
 void buildAssets();
