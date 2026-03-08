@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 static void STF_GetCurrentMapId( char *out, int outSize );
 static void STF_HandleTimerCommand( void );
+
+#define STF_MIN_VALID_RUN_MS 1000
 #ifdef MISSIONPACK
 #include "../../ui/menudef.h"
 
@@ -1168,19 +1170,36 @@ static void STF_HandleTimerCommand( void ) {
 	}
 
 	if ( !Q_stricmp( state, "stop" ) ) {
+		int previousBest;
+		qboolean updatedBest;
+
 		cg.runTimerActive = qfalse;
 		cg.runTimerLastMs = value;
 		if ( cg.runTimerLastMs < 0 ) {
 			cg.runTimerLastMs = 0;
 		}
 
-		if ( cg.runTimerLastMs > 0
+		if ( cg.runTimerBestMs > 0 && cg.runTimerBestMs < STF_MIN_VALID_RUN_MS ) {
+			cg.runTimerBestMs = 0;
+			trap_Cvar_Set( "cg_runBestMs", "0" );
+		}
+		previousBest = cg.runTimerBestMs;
+		updatedBest = qfalse;
+		if ( cg.runTimerLastMs >= STF_MIN_VALID_RUN_MS
 			&& ( cg.runTimerBestMs <= 0 || cg.runTimerLastMs < cg.runTimerBestMs ) ) {
 			cg.runTimerBestMs = cg.runTimerLastMs;
 			trap_Cvar_Set( "cg_runBestMs", va( "%i", cg.runTimerBestMs ) );
 			STF_GetCurrentMapId( mapId, sizeof( mapId ) );
 			CG_Printf( "[stf-best] %s %i\n", mapId, cg.runTimerBestMs );
+			updatedBest = qtrue;
 		}
+		CG_Printf(
+			"[stf-debug] stop eval run=%i prevBest=%i newBest=%i updated=%i\n",
+			cg.runTimerLastMs,
+			previousBest,
+			cg.runTimerBestMs,
+			updatedBest
+		);
 		return;
 	}
 

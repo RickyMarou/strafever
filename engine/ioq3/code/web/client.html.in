@@ -28,6 +28,7 @@ const com_basegame = urlParams.get('com_basegame') || BASEGAME;
 const fs_basegame = urlParams.get('fs_basegame') || '';
 const fs_game = urlParams.get('fs_game') || '';
 const storagePrefix = 'strafever:best:';
+const minValidRunMs = 1000;
 let generatedArguments = `
     +set sv_pure 0
     +set net_enabled 0
@@ -61,7 +62,7 @@ function getStoredBestMs(mapId) {
     try {
         const raw = window.localStorage.getItem(bestStorageKey(mapId));
         const parsed = Number(raw);
-        if (!Number.isFinite(parsed) || parsed <= 0) {
+        if (!Number.isFinite(parsed) || parsed < minValidRunMs) {
             return 0;
         }
         return Math.floor(parsed);
@@ -71,6 +72,9 @@ function getStoredBestMs(mapId) {
 }
 
 function setStoredBestMs(mapId, value) {
+    if (!Number.isFinite(value) || value < minValidRunMs) {
+        return;
+    }
     try {
         window.localStorage.setItem(bestStorageKey(mapId), String(value));
     } catch {

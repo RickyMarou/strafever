@@ -364,7 +364,7 @@ void CG_RegisterCvars( void ) {
 	cg.runTimerStartTime = 0;
 	cg.runTimerLastMs = 0;
 	cg.runTimerBestMs = cg_runBestMs.integer;
-	if ( cg.runTimerBestMs < 0 ) {
+	if ( cg.runTimerBestMs < 1000 ) {
 		cg.runTimerBestMs = 0;
 	}
 }
