@@ -1154,9 +1154,11 @@ static void STF_GetCurrentMapId( char *out, int outSize ) {
 }
 
 static void STF_HandleTimerCommand( void ) {
-	const char *state = CG_Argv( 1 );
+	char state[32];
 	int value = atoi( CG_Argv( 2 ) );
 	char mapId[MAX_QPATH];
+	Q_strncpyz( state, CG_Argv( 1 ), sizeof( state ) );
+	CG_Printf( "[stf-debug] client received stf_timer state=%s value=%i\n", state, value );
 
 	if ( !Q_stricmp( state, "start" ) ) {
 		cg.runTimerActive = qtrue;
