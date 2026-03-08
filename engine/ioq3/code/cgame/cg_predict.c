@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+extern float pm_airaccelerate;
+extern float pm_friction;
+
 static	pmove_t		cg_pmove;
 
 static	int			cg_numSolidEntities;
@@ -498,6 +501,8 @@ void CG_PredictPlayerState( void ) {
 
 	cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
 	cg_pmove.pmove_msec = pmove_msec.integer;
+	pm_airaccelerate = cg_pm_airaccelerate.value;
+	pm_friction = cg_pm_friction.value;
 
 	// run cmds
 	moved = qfalse;
@@ -624,5 +629,4 @@ void CG_PredictPlayerState( void ) {
 		}
 	}
 }
-
 

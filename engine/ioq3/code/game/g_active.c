@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+extern float pm_airaccelerate;
+extern float pm_friction;
+
 
 /*
 ===============
@@ -920,6 +923,8 @@ void ClientThink_real( gentity_t *ent ) {
 
 	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
 	pm.pmove_msec = pmove_msec.integer;
+	pm_airaccelerate = g_pm_airaccelerate.value;
+	pm_friction = g_pm_friction.value;
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
@@ -1187,5 +1192,3 @@ void ClientEndFrame( gentity_t *ent ) {
 //	i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
 //	ent->client->areabits[i >> 3] |= 1 << (i & 7);
 }
-
-
