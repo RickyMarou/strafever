@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // be a valid snapshot this frame
 
 #include "cg_local.h"
+static void STF_GetCurrentMapId( char *out, int outSize );
+static void STF_HandleTimerCommand( void );
 #ifdef MISSIONPACK
 #include "../../ui/menudef.h"
 
@@ -1070,6 +1072,11 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "stf_timer" ) ) {
+		STF_HandleTimerCommand();
+		return;
+	}
+
 	if ( !strcmp( cmd, "tinfo" ) ) {
 		CG_ParseTeamInfo();
 		return;
@@ -1128,5 +1135,57 @@ void CG_ExecuteNewServerCommands( int latestSequence ) {
 		if ( trap_GetServerCommand( ++cgs.serverCommandSequence ) ) {
 			CG_ServerCommand();
 		}
+	}
+}
+static void STF_GetCurrentMapId( char *out, int outSize ) {
+	const char *mapname = cgs.mapname;
+	const char *start = mapname;
+	char *dot;
+
+	if ( !Q_stricmpn( mapname, "maps/", 5 ) ) {
+		start = mapname + 5;
+	}
+
+	Q_strncpyz( out, start, outSize );
+	dot = strrchr( out, '.' );
+	if ( dot ) {
+		*dot = '\0';
+	}
+}
+
+static void STF_HandleTimerCommand( void ) {
+	const char *state = CG_Argv( 1 );
+	int value = atoi( CG_Argv( 2 ) );
+	char mapId[MAX_QPATH];
+
+	if ( !Q_stricmp( state, "start" ) ) {
+		cg.runTimerActive = qtrue;
+		cg.runTimerStartTime = value;
+		cg.runTimerLastMs = 0;
+		return;
+	}
+
+	if ( !Q_stricmp( state, "stop" ) ) {
+		cg.runTimerActive = qfalse;
+		cg.runTimerLastMs = value;
+		if ( cg.runTimerLastMs < 0 ) {
+			cg.runTimerLastMs = 0;
+		}
+
+		if ( cg.runTimerLastMs > 0
+			&& ( cg.runTimerBestMs <= 0 || cg.runTimerLastMs < cg.runTimerBestMs ) ) {
+			cg.runTimerBestMs = cg.runTimerLastMs;
+			trap_Cvar_Set( "cg_runBestMs", va( "%i", cg.runTimerBestMs ) );
+			STF_GetCurrentMapId( mapId, sizeof( mapId ) );
+			CG_Printf( "[stf-best] %s %i\n", mapId, cg.runTimerBestMs );
+		}
+		return;
+	}
+
+	if ( !Q_stricmp( state, "reset" ) ) {
+		cg.runTimerActive = qfalse;
+		cg.runTimerStartTime = 0;
+		cg.runTimerLastMs = 0;
+		return;
 	}
 }

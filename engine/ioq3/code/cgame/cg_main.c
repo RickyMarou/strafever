@@ -169,6 +169,7 @@ vmCvar_t 	cg_smoothClients;
 vmCvar_t	pmove_fixed;
 //vmCvar_t	cg_pmove_fixed;
 vmCvar_t	pmove_msec;
+vmCvar_t	cg_runBestMs;
 vmCvar_t	cg_pm_airaccelerate;
 vmCvar_t	cg_pm_friction;
 vmCvar_t	cg_pmove_msec;
@@ -315,6 +316,7 @@ static cvarTable_t cvarTable[] = {
 
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO},
+	{ &cg_runBestMs, "cg_runBestMs", "0", CVAR_ARCHIVE },
 	{ &cg_pm_airaccelerate, "pm_airaccelerate", "1.0", CVAR_SYSTEMINFO},
 	{ &cg_pm_friction, "pm_friction", "6.0", CVAR_SYSTEMINFO},
 #ifdef MISSIONPACK
@@ -357,6 +359,14 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+
+	cg.runTimerActive = qfalse;
+	cg.runTimerStartTime = 0;
+	cg.runTimerLastMs = 0;
+	cg.runTimerBestMs = cg_runBestMs.integer;
+	if ( cg.runTimerBestMs < 0 ) {
+		cg.runTimerBestMs = 0;
+	}
 }
 
 /*																																			

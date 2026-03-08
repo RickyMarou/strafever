@@ -1193,6 +1193,9 @@ void ClientSpawn(gentity_t *ent) {
 	client->respawnTime = level.time;
 	client->inactivityTime = level.time + g_inactivity.integer * 1000;
 	client->latched_buttons = 0;
+	client->runTimerActive = qfalse;
+	client->runTimerStartTime = 0;
+	client->runTimerElapsedMs = 0;
 
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;
@@ -1222,6 +1225,7 @@ void ClientSpawn(gentity_t *ent) {
 			tent->s.clientNum = ent->s.clientNum;
 
 			trap_LinkEntity (ent);
+			trap_SendServerCommand( index, "stf_timer reset 0" );
 		}
 	} else {
 		// move players to intermission
@@ -1332,5 +1336,4 @@ void ClientDisconnect( int clientNum ) {
 		BotAIShutdownClient( clientNum, qfalse );
 	}
 }
-
 

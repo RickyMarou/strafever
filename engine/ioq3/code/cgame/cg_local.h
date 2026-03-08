@@ -597,6 +597,10 @@ typedef struct {
 	// warmup countdown
 	int			warmup;
 	int			warmupCount;
+	qboolean	runTimerActive;
+	int			runTimerStartTime;
+	int			runTimerLastMs;
+	int			runTimerBestMs;
 
 	//==========================
 
@@ -1162,6 +1166,7 @@ extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_smoothClients;
 extern	vmCvar_t		pmove_fixed;
 extern	vmCvar_t		pmove_msec;
+extern	vmCvar_t		cg_runBestMs;
 extern	vmCvar_t		cg_pm_airaccelerate;
 extern	vmCvar_t		cg_pm_friction;
 //extern	vmCvar_t		cg_pmove_fixed;

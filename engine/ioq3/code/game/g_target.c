@@ -162,6 +162,53 @@ void SP_target_print( gentity_t *ent ) {
 	ent->use = Use_Target_Print;
 }
 
+static void STF_SendTimerStateToClient( gentity_t *activator, const char *state, int value ) {
+	if ( !activator->client ) {
+		return;
+	}
+
+	trap_SendServerCommand(
+		activator - g_entities,
+		va( "stf_timer %s %i", state, value )
+	);
+}
+
+void Use_Target_StartTimer( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+	if ( !activator->client ) {
+		return;
+	}
+
+	activator->client->runTimerActive = qtrue;
+	activator->client->runTimerStartTime = level.time;
+	activator->client->runTimerElapsedMs = 0;
+	STF_SendTimerStateToClient( activator, "start", level.time );
+}
+
+void SP_target_startTimer( gentity_t *ent ) {
+	ent->use = Use_Target_StartTimer;
+}
+
+void Use_Target_StopTimer( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+	int elapsedMs;
+
+	if ( !activator->client || !activator->client->runTimerActive ) {
+		return;
+	}
+
+	elapsedMs = level.time - activator->client->runTimerStartTime;
+	if ( elapsedMs < 0 ) {
+		elapsedMs = 0;
+	}
+
+	activator->client->runTimerActive = qfalse;
+	activator->client->runTimerElapsedMs = elapsedMs;
+	STF_SendTimerStateToClient( activator, "stop", elapsedMs );
+}
+
+void SP_target_stopTimer( gentity_t *ent ) {
+	ent->use = Use_Target_StopTimer;
+}
+
 
 //==========================================================
 
@@ -464,4 +511,3 @@ void SP_target_location( gentity_t *self ){
 
 	G_SetOrigin( self, self->s.origin );
 }
-

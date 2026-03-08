@@ -774,22 +774,44 @@ CG_DrawTimer
 */
 static float CG_DrawTimer( float y ) {
 	char		*s;
+	char		best[32];
 	int			w;
-	int			mins, seconds, tens;
+	int			bestW;
+	int			bestY;
+	int			bestMins, bestSeconds;
 	int			msec;
+	int			mins, seconds, millis;
 
-	msec = cg.time - cgs.levelStartTime;
+	if ( cg.runTimerActive ) {
+		msec = cg.time - cg.runTimerStartTime;
+	} else {
+		msec = cg.runTimerLastMs;
+	}
+
+	if ( msec < 0 ) {
+		msec = 0;
+	}
 
 	seconds = msec / 1000;
 	mins = seconds / 60;
 	seconds -= mins * 60;
-	tens = seconds / 10;
-	seconds -= tens * 10;
+	millis = msec % 1000;
 
-	s = va( "%i:%i%i", mins, tens, seconds );
+	s = va( "%02i:%02i.%03i", mins, seconds, millis );
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
 	CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+
+	if ( cg.runTimerBestMs > 0 ) {
+		bestSeconds = cg.runTimerBestMs / 1000;
+		bestMins = bestSeconds / 60;
+		bestSeconds -= bestMins * 60;
+		Com_sprintf( best, sizeof( best ), "best %02i:%02i.%03i", bestMins, bestSeconds, cg.runTimerBestMs % 1000 );
+		bestW = CG_DrawStrlen( best ) * SMALLCHAR_WIDTH;
+		bestY = (int)y + BIGCHAR_HEIGHT + 6;
+		CG_DrawSmallStringColor( 635 - bestW, bestY, best, colorWhite );
+		return y + BIGCHAR_HEIGHT + SMALLCHAR_HEIGHT + 8;
+	}
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
