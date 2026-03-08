@@ -27,6 +27,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const com_basegame = urlParams.get('com_basegame') || BASEGAME;
 const fs_basegame = urlParams.get('fs_basegame') || '';
 const fs_game = urlParams.get('fs_game') || '';
+const storagePrefix = 'strafever:best:';
 let generatedArguments = `
     +set sv_pure 0
     +set net_enabled 0
@@ -39,6 +40,50 @@ let generatedArguments = `
 const queryArgs = urlParams.get('args');
 if (queryArgs) generatedArguments += ` ${queryArgs} `;
 
+function extractMapId(argsValue) {
+    if (!argsValue) {
+        return null;
+    }
+
+    const match = argsValue.match(/(?:^|\s)\+?(?:devmap|map)\s+([^\s"]+)/i);
+    if (!match || !match[1]) {
+        return null;
+    }
+
+    return match[1];
+}
+
+function bestStorageKey(mapId) {
+    return `${storagePrefix}${String(mapId).toLowerCase()}`;
+}
+
+function getStoredBestMs(mapId) {
+    try {
+        const raw = window.localStorage.getItem(bestStorageKey(mapId));
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed) || parsed <= 0) {
+            return 0;
+        }
+        return Math.floor(parsed);
+    } catch {
+        return 0;
+    }
+}
+
+function setStoredBestMs(mapId, value) {
+    try {
+        window.localStorage.setItem(bestStorageKey(mapId), String(value));
+    } catch {
+        // Intentionally ignore storage failures in restricted browsing contexts.
+    }
+}
+
+const initialMapId = urlParams.get('map') || extractMapId(queryArgs) || 'mvp_box';
+const storedBestMs = getStoredBestMs(initialMapId);
+if (storedBestMs > 0) {
+    generatedArguments += ` +set cg_runBestMs "${storedBestMs}" `;
+}
+
 const dataURL = new URL(dataPath, location.origin + location.pathname);
 
 const configPromise = EMSCRIPTEN_PRELOAD_FILE ? Promise.resolve({[BASEGAME]: {files: []}})
@@ -48,6 +93,25 @@ const ioquake3 = (await import(enginePath + `@CLIENT_BINARY@.js`)).default;
 ioquake3({
     canvas: canvas,
     arguments: generatedArguments.trim().split(/\s+/),
+    print: (text) => {
+        if (typeof text === 'string') {
+            const marker = text.match(/^\[stf-best\]\s+([^\s]+)\s+(\d+)/);
+            if (marker) {
+                const mapId = marker[1];
+                const ms = Number(marker[2]);
+                if (Number.isFinite(ms) && ms > 0) {
+                    const previous = getStoredBestMs(mapId);
+                    if (previous <= 0 || ms < previous) {
+                        setStoredBestMs(mapId, ms);
+                    }
+                }
+            }
+        }
+        console.log(text);
+    },
+    printErr: (text) => {
+        console.error(text);
+    },
     locateFile: (file) => enginePath + file,
     preRun: [async (module) => {
         module.addRunDependency('setup-ioq3-filesystem');
