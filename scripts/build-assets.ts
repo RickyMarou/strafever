@@ -550,11 +550,16 @@ async function buildAssets(): Promise<void> {
 
   const mapCompatTextures: Array<{ file: string; color: RGB }> = [
     { file: "textures/base_ceiling/metceil1d.tga", color: { r: 193, g: 203, b: 204 } },
+    { file: "textures/base_light/ceil1_37.tga", color: { r: 236, g: 236, b: 226 } },
     { file: "textures/base_floor/clang_floor2.tga", color: { r: 96, g: 104, b: 112 } },
     { file: "textures/base_floor/clang_floor3b.tga", color: { r: 84, g: 92, b: 99 } },
     { file: "textures/base_light/ceil1_38_10k.tga", color: { r: 245, g: 245, b: 236 } },
+    { file: "textures/base_light/wsupprt1_12.tga", color: { r: 124, g: 132, b: 140 } },
     { file: "textures/base_trim/pewter.tga", color: { r: 138, g: 146, b: 156 } },
+    { file: "textures/base_trim/tin.tga", color: { r: 133, g: 141, b: 149 } },
     { file: "textures/base_wall/atech2_c.tga", color: { r: 108, g: 119, b: 132 } },
+    { file: "textures/liquids/pool3d_5e.tga", color: { r: 52, g: 98, b: 143 } },
+    { file: "textures/skies/pj_dm9sky.tga", color: { r: 112, g: 151, b: 201 } },
     { file: "textures/sfx/fog_timctf1.tga", color: { r: 160, g: 190, b: 220 } },
   ];
 

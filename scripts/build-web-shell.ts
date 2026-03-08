@@ -5,6 +5,7 @@ import path from 'node:path';
 const projectRoot = process.cwd();
 const webDir = path.join(projectRoot, 'web');
 const webJump2Dir = path.join(webDir, 'jump2');
+const webSpeedtrainingDir = path.join(webDir, 'speedtraining');
 const distDir = path.join(projectRoot, 'dist');
 const distEngineDir = path.join(distDir, 'engine');
 const distAssetsBaseq3Dir = path.join(distDir, 'assets', 'baseq3');
@@ -77,6 +78,8 @@ async function buildWebShell(): Promise<void> {
   await copyFile(path.join(webDir, 'shell.js'), path.join(distDir, 'shell.js'));
   await mkdir(path.join(distDir, 'jump2'), { recursive: true });
   await copyFile(path.join(webJump2Dir, 'index.html'), path.join(distDir, 'jump2', 'index.html'));
+  await mkdir(path.join(distDir, 'speedtraining'), { recursive: true });
+  await copyFile(path.join(webSpeedtrainingDir, 'index.html'), path.join(distDir, 'speedtraining', 'index.html'));
   await stitchRuntime();
 
   console.log('[build:web-shell] copied web shell and stitched dist/engine runtime config');
